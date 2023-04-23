@@ -397,7 +397,7 @@ class TimeSkill(MycroftSkill):
         self.enclosure.deactivate_mouth_events()
         self.display(self.get_display_current_time(location))
         time.sleep(5)
-        mycroft.audio.wait_while_speaking()
+        core.audio.wait_while_speaking()
         self.enclosure.mouth_reset()
         self.enclosure.activate_mouth_events()
         self.answering_query = False
@@ -431,7 +431,7 @@ class TimeSkill(MycroftSkill):
         self.enclosure.deactivate_mouth_events()
         self.display(self.get_display_current_time(location, dt))
         time.sleep(5)
-        mycroft.audio.wait_while_speaking()
+        core.audio.wait_while_speaking()
         self.enclosure.mouth_reset()
         self.enclosure.activate_mouth_events()
         self.answering_query = False
