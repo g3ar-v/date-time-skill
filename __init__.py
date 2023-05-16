@@ -13,11 +13,11 @@ from adapt.intent import IntentBuilder
 from core.util.format import (nice_date, nice_duration, nice_time,
                               date_time_format)
 from core.messagebus.message import Message
-from core import MycroftSkill, intent_handler
+from core import Skill, intent_handler
 from core.util.parse import (extract_datetime, fuzzy_match, extract_number,
                              normalize)
 from core.util.time import now_utc, to_local, now_local
-from core.skills import resting_screen_handler
+# from core.skills import resting_screen_handler
 
 
 def speakable_timezone(tz):
@@ -37,7 +37,7 @@ def speakable_timezone(tz):
     return " ".join(say)
 
 
-class TimeSkill(MycroftSkill):
+class TimeSkill(Skill):
 
     def __init__(self):
         super(TimeSkill, self).__init__("TimeSkill")
@@ -53,11 +53,11 @@ class TimeSkill(MycroftSkill):
         # TODO: Add mechanism to only start timer when UI setting
         #       is checked, but this requires a notifier for settings
         #       updates from the web.
-        now = datetime.datetime.now()
-        callback_time = (datetime.datetime(now.year, now.month, now.day,
-                                           now.hour, now.minute) +
-                         datetime.timedelta(seconds=60))
-        self.schedule_repeating_event(self.update_display, callback_time, 10)
+        # now = datetime.datetime.now()
+        # callback_time = (datetime.datetime(now.year, now.month, now.day,
+        #                                    now.hour, now.minute) +
+        #                  datetime.timedelta(seconds=60))
+        # self.schedule_repeating_event(self.update_display, callback_time, 10)
 
     # TODO:19.08 Moved to MycroftSkill
     @property
@@ -73,18 +73,18 @@ class TimeSkill(MycroftSkill):
         else:
             return None
 
-    @resting_screen_handler('Time and Date')
-    def handle_idle(self, message):
-        self.gui.clear()
-        self.log.debug('Activating Time/Date resting page')
-        self.gui['time_string'] = self.get_display_current_time()
-        self.gui['ampm_string'] = ''
-        self.gui['date_string'] = self.get_display_date()
-        self.gui['weekday_string'] = self.get_weekday()
-        self.gui['month_string'] = self.get_month_date()
-        self.gui['year_string'] = self.get_year()
-        self.gui['build_date'] = self.build_info.get('build_date', '')
-        self.gui.show_page('idle.qml')
+    # @resting_screen_handler('Time and Date')
+    # def handle_idle(self, message):
+    #     self.gui.clear()
+    #     self.log.debug('Activating Time/Date resting page')
+    #     self.gui['time_string'] = self.get_display_current_time()
+    #     self.gui['ampm_string'] = ''
+    #     self.gui['date_string'] = self.get_display_date()
+    #     self.gui['weekday_string'] = self.get_weekday()
+    #     self.gui['month_string'] = self.get_month_date()
+    #     self.gui['year_string'] = self.get_year()
+    #     self.gui['build_date'] = self.build_info.get('build_date', '')
+    #     self.gui.show_page('idle.qml')
 
     @property
     def build_info(self):
@@ -313,51 +313,51 @@ class TimeSkill(MycroftSkill):
         msg = self.bus.wait_for_response(query)
         return msg and msg.data.get("active_alarms", 0) > 0
 
-    def display_gui(self, display_time):
-        """ Display time on the Mycroft GUI. """
-        self.gui.clear()
-        self.gui['time_string'] = display_time
-        self.gui['ampm_string'] = ''
-        self.gui['date_string'] = self.get_display_date()
-        self.gui.show_page('time.qml')
+    # def display_gui(self, display_time):
+    #     """ Display time on the Mycroft GUI. """
+    #     self.gui.clear()
+    #     self.gui['time_string'] = display_time
+    #     self.gui['ampm_string'] = ''
+    #     self.gui['date_string'] = self.get_display_date()
+    #     self.gui.show_page('time.qml')
 
     def _is_display_idle(self):
         # check if the display is being used by another skill right now
         # or _get_active() == "TimeSkill"
         return self.enclosure.display_manager.get_active() == ''
 
-    def update_display(self, force=False):
-        # Don't show idle time when answering a query to prevent
-        # overwriting the displayed value.
-        if self.answering_query:
-            return
+    # def update_display(self, force=False):
+    #     # Don't show idle time when answering a query to prevent
+    #     # overwriting the displayed value.
+    #     if self.answering_query:
+    #         return
 
-        self.gui['time_string'] = self.get_display_current_time()
-        self.gui['date_string'] = self.get_display_date()
-        self.gui['ampm_string'] = ''  # TODO
-        self.gui['weekday_string'] = self.get_weekday()
-        self.gui['month_string'] = self.get_month_date()
+    #     self.gui['time_string'] = self.get_display_current_time()
+    #     self.gui['date_string'] = self.get_display_date()
+    #     self.gui['ampm_string'] = ''  # TODO
+    #     self.gui['weekday_string'] = self.get_weekday()
+    #     self.gui['month_string'] = self.get_month_date()
 
-        if self.settings.get("show_time", False):
-            # user requested display of time while idle
-            if (force is True) or self._is_display_idle():
-                current_time = self.get_display_current_time()
-                if self.displayed_time != current_time:
-                    self.displayed_time = current_time
-                    self.display(current_time)
-                    # return mouth to 'idle'
-                    self.enclosure.display_manager.remove_active()
-            else:
-                self.displayed_time = None  # another skill is using display
-        else:
-            # time display is not wanted
-            if self.displayed_time:
-                if self._is_display_idle():
-                    # erase the existing displayed time
-                    self.enclosure.mouth_reset()
-                    # return mouth to 'idle'
-                    self.enclosure.display_manager.remove_active()
-                self.displayed_time = None
+    #     if self.settings.get("show_time", False):
+    #         # user requested display of time while idle
+    #         if (force is True) or self._is_display_idle():
+    #             current_time = self.get_display_current_time()
+    #             if self.displayed_time != current_time:
+    #                 self.displayed_time = current_time
+    #                 self.display(current_time)
+    #                 # return mouth to 'idle'
+    #                 self.enclosure.display_manager.remove_active()
+    #         else:
+    #             self.displayed_time = None  # another skill is using display
+    #     else:
+    #         # time display is not wanted
+    #         if self.displayed_time:
+    #             if self._is_display_idle():
+    #                 # erase the existing displayed time
+    #                 self.enclosure.mouth_reset()
+    #                 # return mouth to 'idle'
+    #                 self.enclosure.display_manager.remove_active()
+    #             self.displayed_time = None
 
     def _extract_location(self, utt):
         # if "Location" in message.data:
@@ -394,12 +394,12 @@ class TimeSkill(MycroftSkill):
 
         # and briefly show the time
         self.answering_query = True
-        self.enclosure.deactivate_mouth_events()
-        self.display(self.get_display_current_time(location))
+        # self.enclosure.deactivate_mouth_events()
+        # self.display(self.get_display_current_time(location))
         time.sleep(5)
         core.audio.wait_while_speaking()
-        self.enclosure.mouth_reset()
-        self.enclosure.activate_mouth_events()
+        # self.enclosure.mouth_reset()
+        # self.enclosure.activate_mouth_events()
         self.answering_query = False
         self.displayed_time = None
 
@@ -428,12 +428,12 @@ class TimeSkill(MycroftSkill):
 
         # and briefly show the time
         self.answering_query = True
-        self.enclosure.deactivate_mouth_events()
+        # self.enclosure.deactivate_mouth_events()
         self.display(self.get_display_current_time(location, dt))
         time.sleep(5)
         core.audio.wait_while_speaking()
-        self.enclosure.mouth_reset()
-        self.enclosure.activate_mouth_events()
+        # self.enclosure.mouth_reset()
+        # self.enclosure.activate_mouth_events()
         self.answering_query = False
         self.displayed_time = None
 
