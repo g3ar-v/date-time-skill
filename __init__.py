@@ -529,12 +529,9 @@ class TimeSkill(Skill):
 
         # and briefly show the date
         self.answering_query = True
-        self.show_date(location, day=day)
+        # self.show_date(location, day=day)
         time.sleep(10)
         core.audio.wait_while_speaking()
-        if self.platform == "mycroft_mark_1":
-            self.enclosure.mouth_reset()
-            self.enclosure.activate_mouth_events()
         self.answering_query = False
         self.displayed_time = None
 
@@ -598,15 +595,15 @@ class TimeSkill(Skill):
         next_leap_year = self.get_next_leap_year(year)
         self.speak_dialog('next.leap.year', {'year': next_leap_year})
 
-    def show_date(self, location, day=None):
-        if self.platform == "mycroft_mark_1":
-            self.show_date_mark1(location, day)
-        self.show_date_gui(location, day)
+    # def show_date(self, location, day=None):
+    #     if self.platform == "mycroft_mark_1":
+    #         self.show_date_mark1(location, day)
+    #     self.show_date_gui(location, day)
 
-    def show_date_mark1(self, location, day):
-        show = self.get_display_date(day, location)
-        self.enclosure.deactivate_mouth_events()
-        self.enclosure.mouth_text(show)
+    # def show_date_mark1(self, location, day):
+    #     show = self.get_display_date(day, location)
+    #     self.enclosure.deactivate_mouth_events()
+    #     self.enclosure.mouth_text(show)
 
     def get_weekday(self, day=None, location=None):
         if not day:
@@ -648,19 +645,19 @@ class TimeSkill(Skill):
     def is_leap_year(self, year):
         return (year % 400 == 0) or ((year % 4 == 0) and (year % 100 != 0))
 
-    def show_date_gui(self, location, day):
-        self.gui.clear()
-        self.gui['date_string'] = self.get_display_date(day, location)
-        self.gui['weekday_string'] = self.get_weekday(day, location)
-        month_string = self.get_month_date(day, location).split(" ")
-        if self.config_core.get('date_format') == 'MDY':
-            self.gui['day_string'] = month_string[1]
-            self.gui['month_string'] = month_string[0]
-        else:
-            self.gui['day_string'] = month_string[0]
-            self.gui['month_string'] = month_string[1]
-        self.gui['year_string'] = self.get_year(day, location)
-        self.gui.show_page('date.qml')
+    # def show_date_gui(self, location, day):
+    #     self.gui.clear()
+    #     self.gui['date_string'] = self.get_display_date(day, location)
+    #     self.gui['weekday_string'] = self.get_weekday(day, location)
+    #     month_string = self.get_month_date(day, location).split(" ")
+    #     if self.config_core.get('date_format') == 'MDY':
+    #         self.gui['day_string'] = month_string[1]
+    #         self.gui['month_string'] = month_string[0]
+    #     else:
+    #         self.gui['day_string'] = month_string[0]
+    #         self.gui['month_string'] = month_string[1]
+    #     self.gui['year_string'] = self.get_year(day, location)
+    #     self.gui.show_page('date.qml')
 
 
 def create_skill():
